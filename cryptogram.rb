@@ -1,5 +1,7 @@
 # Cryptogram sources: "Best of Ruby Quiz" book & One Across website (http://www.oneacross.com/cryptograms)
 
+require 'benchmark'
+
 def group_words(words)
   words.inject(Hash.new []) do |memo, w| 
     w = w[0..-2] if w[-1] == '%'
@@ -89,25 +91,27 @@ end
 @words          ||= File.read('./12dicts-4.0/2of12inf.txt').split
 @grouped_words  ||= group_words(@words)
 
+# 19 solutions found in 0.7328958511352539 seconds.
 # Best phrase: "genius is one per cent inspiration ninety nine per cent perspiration t.o.as a..a e.ison"
-# Correct phrase: "Genius is one percent inspiration, ninety-nine percent perspiration. Thomas Elva Edison"
-# @cryptogram = %w(
-#   zfsbhd
-#   bd
-#   lsf
-#   xfe
-#   ofsr
-#   bsdxbejrbls
-#   sbsfra
-#   sbsf
-#   xfe
-#   ofsr
-#   xfedxbejrbls
-#   rqlujd
-#   jvwj
-#   fpbdls
-# )
+# Correct phrase: "Genius is one percent inspiration, ninety-nine percent perspiration. Thomas Alva Edison"
+@cryptogram = %w(
+  zfsbhd
+  bd
+  lsf
+  xfe
+  ofsr
+  bsdxbejrbls
+  sbsfra
+  sbsf
+  xfe
+  ofsr
+  xfedxbejrbls
+  rqlujd
+  jvwj
+  fpbdls
+)
 
+# ? solutions found!
 # Best phrase: "mark had a little lamb mother goose"
 # Correct phrase: "Mary had a little lamb. Mother Goose"
 # @cryptogram = %w(
@@ -120,6 +124,7 @@ end
 #   ussyk
 # )
 
+# ? solutions found!
 # Best phrase: "the difference between the almost right word and the right word is the difference between the lightning bug and the lightning mark twain"
 # Correct phrase: "The difference between the right word and the almost right word is the difference between lightning and a lightning bug. Mark Twain"
 # @cryptogram = %w(
@@ -148,6 +153,7 @@ end
 #   msodu
 # )
 
+# ? solutions found!
 # Best phrase: "psychotherapy is the theory that the patient will probably get well anyhow and is certainly a damn fool h l menc.en"
 # Correct phrase: "Psychotherapy is the theory that the patient will probably get well anyhow and is certainly a damn fool. H L Mencken"
 # @cryptogram = %w(
@@ -174,6 +180,7 @@ end
 #   cnhkanh
 # )
 
+# ? solutions found!
 # Best phrase: ".ucharme s precept opportunity always knocks at the least opportune moment"
 # Correct phrase: "Ducharme's Precept: Opportunity Always Knocks At The Least Opportune Moment."
 # @cryptogram = %w(
@@ -190,27 +197,27 @@ end
 #   nfnhbp
 # )
 
-# (hard one)
+# ? solutions found! (hard one)
 # Best phrase: "?"
 # Correct phrase: "?"
-@cryptogram = %w(
-  rbl	
-  jfnzlopl	
-  xvlp	
-  fvr	
-  bezl	
-  segp
-  nr	
-  bep	
-  beknrp	
-  efx	
-  beknrp	
-  ief	
-  kl	
-  kovwlf
-)
+# @cryptogram = %w(
+#   rbl 
+#   jfnzlopl  
+#   xvlp  
+#   fvr 
+#   bezl  
+#   segp
+#   nr  
+#   bep 
+#   beknrp  
+#   efx 
+#   beknrp  
+#   ief 
+#   kl  
+#   kovwlf
+# )
 
-# (another hard one)
+# ? solutions found! (hard one)
 # Best phrase: "?"
 # Correct phrase: "?"
 # @cryptogram = %w(
@@ -235,4 +242,4 @@ end
 
 @debug = false
 
-@translations = find_cryptogram_solutions(@cryptogram)
+puts Benchmark.realtime { @translations = find_cryptogram_solutions(@cryptogram) }
