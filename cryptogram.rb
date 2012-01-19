@@ -1,3 +1,5 @@
+# Cryptogram sources: "Best of Ruby Quiz" book & One Across website (http://www.oneacross.com/cryptograms)
+
 def group_words(words)
   words.inject(Hash.new []) do |memo, w| 
     w = w[0..-2] if w[-1] == '%'
@@ -18,7 +20,11 @@ def mapping(translations)
         current_value           = map[1][key_char_alphabet_index]
         
         if current_value == '.'
-          map[1][key_char_alphabet_index] = v[i]
+          if !map[1].include?(v[i])
+            map[1][key_char_alphabet_index] = v[i]
+          else
+            raise "Duplicate value #{v[i]} in map #{map.inspect}"
+          end
         elsif current_value != v[i]
           raise "Conflicting values #{current_value} and #{v[i]} for index #{key_char_alphabet_index} in map #{map.inspect}"
         end
@@ -83,22 +89,149 @@ end
 @words          ||= File.read('./12dicts-4.0/2of12inf.txt').split
 @grouped_words  ||= group_words(@words)
 
+# Best phrase: "genius is one per cent inspiration ninety nine per cent perspiration t.o.as a..a e.ison"
+# Correct phrase: "Genius is one percent inspiration, ninety-nine percent perspiration. Thomas Elva Edison"
+# @cryptogram = %w(
+#   zfsbhd
+#   bd
+#   lsf
+#   xfe
+#   ofsr
+#   bsdxbejrbls
+#   sbsfra
+#   sbsf
+#   xfe
+#   ofsr
+#   xfedxbejrbls
+#   rqlujd
+#   jvwj
+#   fpbdls
+# )
+
+# Best phrase: "mark had a little lamb mother goose"
+# Correct phrase: "Mary had a little lamb. Mother Goose"
+# @cryptogram = %w(
+#   gebo
+#   tev
+#   e
+#   cwaack
+#   cegn
+#   gsatkb
+#   ussyk
+# )
+
+# Best phrase: "the difference between the almost right word and the right word is the difference between the lightning bug and the lightning mark twain"
+# Correct phrase: "The difference between the right word and the almost right word is the difference between lightning and a lightning bug. Mark Twain"
+# @cryptogram = %w(
+#   mkr
+#   ideerqruhr
+#   nrmsrru
+#   mkr
+#   ozgcym
+#   qdakm
+#   scqi
+#   oui
+#   mkr
+#   qdakm
+#   scqi
+#   dy
+#   mkr
+#   ideerqruhr
+#   nrmsrru
+#   mkr
+#   zdakmudua
+#   nja
+#   oui
+#   mkr
+#   zdakmudua
+#   goqb
+#   msodu
+# )
+
+# Best phrase: "psychotherapy is the theory that the patient will probably get well anyhow and is certainly a damn fool h l menc.en"
+# Correct phrase: "Psychotherapy is the theory that the patient will probably get well anyhow and is certainly a damn fool. H L Mencken"
+# @cryptogram = %w(
+#   vidkrqbrnfzvd
+#   wi
+#   brn
+#   brnqfd
+#   brzb
+#   brn
+#   vzbwnhb
+#   ywee
+#   vfqjzjed
+#   tnb
+#   ynee
+#   zhdrqy
+#   zhp
+#   wi
+#   knfbzwhed
+#   z
+#   pzch
+#   sqqe
+#   r
+#   e
+#   cnhkanh
+# )
+
+# Best phrase: ".ucharme s precept opportunity always knocks at the least opportune moment"
+# Correct phrase: "Ducharme's Precept: Opportunity Always Knocks At The Least Opportune Moment."
+# @cryptogram = %w(
+#   vkoxcenh 
+#   i 
+#   qehohqp           
+#   fqqfepkbzpr 
+#   cgdcri  
+#   mbfomi  
+#   cp  
+#   pxh 
+#   ghcip 
+#   fqqfepkbh
+#   nfnhbp
+# )
+
+# (hard one)
+# Best phrase: "?"
+# Correct phrase: "?"
 @cryptogram = %w(
-  zfsbhd
-  bd
-  lsf
-  xfe
-  ofsr
-  bsdxbejrbls
-  sbsfra
-  sbsf
-  xfe
-  ofsr
-  xfedxbejrbls
-  rqlujd
-  jvwj
-  fpbdls
+  rbl	
+  jfnzlopl	
+  xvlp	
+  fvr	
+  bezl	
+  segp
+  nr	
+  bep	
+  beknrp	
+  efx	
+  beknrp	
+  ief	
+  kl	
+  kovwlf
 )
+
+# (another hard one)
+# Best phrase: "?"
+# Correct phrase: "?"
+# @cryptogram = %w(
+#   ftyw
+#   uwmb
+#   yw
+#   ilwwv
+#   qvb
+#   bjtvi
+#   fupxiu
+#   t
+#   dqvi
+#   tv
+#   yj
+#   huqtvd
+#   mtrw
+#   fuw
+#   dwq
+#   bjmqv
+#   fupyqd
+# )
 
 @debug = false
 
