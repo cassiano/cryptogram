@@ -2,12 +2,18 @@
 
 require 'benchmark'
 
+def avg_time(iterations = 10, &block)
+  total_time = 0.0
+  iterations.times { total_time += Benchmark.realtime(&block) }
+  total_time / iterations
+end
+
 def group_words(words)
-  words.inject(Hash.new []) do |memo, w| 
+  words.inject Hash.new([]) do |memo, w| 
     w = w[0..-2] if w[-1] == '%'
     
     memo.tap do
-      memo[w.length] += [w]
+      memo[signature(w)[0]] += [w]
     end
   end
 end
@@ -39,9 +45,22 @@ def find_candidates(cryptographic_word, translations)
   word_re = cryptographic_word.tr(*mapping(translations))
   
   if word_re.include?('.')
-    [word_re, @grouped_words[cryptographic_word.length].grep(/#{word_re}/)]
+    [word_re, @grouped_words[signature(cryptographic_word)[0]].grep(/#{word_re}/)]
   else
     [word_re, [word_re]]
+  end
+end
+
+def signature(word)
+  word.split('').inject ['', ''] do |memo, c| 
+    memo.tap do
+      if (i = memo[1].index(c))
+        memo[0] << (i+1).to_s
+      else
+        memo[1] << c
+        memo[0] << memo[1].size.to_s
+      end
+    end
   end
 end
 
@@ -85,33 +104,15 @@ end
 def print_phrases
   build_phrases
   
-  puts @phrases.map { |p| p[1] }.join("\n")
+  @phrases.each { |p| puts "\"#{p[1]}\" (#{p[0][1]})" } if @phrases.any?
+  
+  nil
 end
 
 @words          ||= File.read('./12dicts-4.0/2of12inf.txt').split
 @grouped_words  ||= group_words(@words)
 
-# 19 solutions found in 0.7328958511352539 seconds.
-# Best phrase: "genius is one per cent inspiration ninety nine per cent perspiration t.o.as a..a e.ison"
-# Correct phrase: "Genius is one percent inspiration, ninety-nine percent perspiration. Thomas Alva Edison"
-@cryptogram = %w(
-  zfsbhd
-  bd
-  lsf
-  xfe
-  ofsr
-  bsdxbejrbls
-  sbsfra
-  sbsf
-  xfe
-  ofsr
-  xfedxbejrbls
-  rqlujd
-  jvwj
-  fpbdls
-)
-
-# ? solutions found!
+# 279 solutions found in: (1st version) 1.5577433109283447 seconds, (2nd) 0.5403711080551148 (2.88x faster)
 # Best phrase: "mark had a little lamb mother goose"
 # Correct phrase: "Mary had a little lamb. Mother Goose"
 # @cryptogram = %w(
@@ -124,7 +125,27 @@ end
 #   ussyk
 # )
 
-# ? solutions found!
+# 19 solutions found in: (1st version) 0.7328958511352539 seconds, (2nd) 0.07852108836174011 (9.3x faster)
+# Best phrase: "genius is one per cent inspiration ninety nine per cent perspiration t.o.as a..a e.ison"
+# Correct phrase: "Genius is one percent inspiration, ninety-nine percent perspiration. Thomas Alva Edison"
+# @cryptogram = %w(
+#   zfsbhd
+#   bd
+#   lsf
+#   xfe
+#   ofsr
+#   bsdxbejrbls
+#   sbsfra
+#   sbsf
+#   xfe
+#   ofsr
+#   xfedxbejrbls
+#   rqlujd
+#   jvwj
+#   fpbdls
+# )
+
+# 1 solution found in: (1st version) 1.2989439964294434 seconds, (2nd) 0.019197819232940675 (67.7x faster)
 # Best phrase: "the difference between the almost right word and the right word is the difference between the lightning bug and the lightning mark twain"
 # Correct phrase: "The difference between the right word and the almost right word is the difference between lightning and a lightning bug. Mark Twain"
 # @cryptogram = %w(
@@ -153,34 +174,34 @@ end
 #   msodu
 # )
 
-# ? solutions found!
+# 7 solutions found in: (1st version) 0.46901512145996094 seconds, (2nd) 0.05025453209877014 (9.3x faster)
 # Best phrase: "psychotherapy is the theory that the patient will probably get well anyhow and is certainly a damn fool h l menc.en"
 # Correct phrase: "Psychotherapy is the theory that the patient will probably get well anyhow and is certainly a damn fool. H L Mencken"
-# @cryptogram = %w(
-#   vidkrqbrnfzvd
-#   wi
-#   brn
-#   brnqfd
-#   brzb
-#   brn
-#   vzbwnhb
-#   ywee
-#   vfqjzjed
-#   tnb
-#   ynee
-#   zhdrqy
-#   zhp
-#   wi
-#   knfbzwhed
-#   z
-#   pzch
-#   sqqe
-#   r
-#   e
-#   cnhkanh
-# )
+@cryptogram = %w(
+  vidkrqbrnfzvd
+  wi
+  brn
+  brnqfd
+  brzb
+  brn
+  vzbwnhb
+  ywee
+  vfqjzjed
+  tnb
+  ynee
+  zhdrqy
+  zhp
+  wi
+  knfbzwhed
+  z
+  pzch
+  sqqe
+  r
+  e
+  cnhkanh
+)
 
-# ? solutions found!
+# 1 solution found in: (1st version) 0.9079411029815674 seconds, (2nd) 0.006327975034713745 (143.5x faster).
 # Best phrase: ".ucharme s precept opportunity always knocks at the least opportune moment"
 # Correct phrase: "Ducharme's Precept: Opportunity Always Knocks At The Least Opportune Moment."
 # @cryptogram = %w(
@@ -242,4 +263,4 @@ end
 
 @debug = false
 
-puts Benchmark.realtime { @translations = find_cryptogram_solutions(@cryptogram) }
+puts avg_time(1) { @translations = find_cryptogram_solutions(@cryptogram) }
