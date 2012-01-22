@@ -25,7 +25,7 @@ class Cryptogram
   
   def self.optimized_dictionary
     @@optimized_dictionary ||= self.dictionary.inject Hash.new([]) do |memo, token| 
-      # Get rid of trailing '%'s.
+      # Get rid of non-alphabetic characters.
       token.gsub!(/[^a-zA-Z]/, '')
 
       memo.tap do
@@ -83,22 +83,22 @@ class Cryptogram
     }.merge(options)
     
     if self.tokens.empty? 
-      self.mapping    # Check whether the current mapping is valid.
+      self.mapping    # If the current mapping is invalid this will raise an exception.
       return self.initial_translations
     end
 
-    sorted_tokens = self.tokens.sort { |b, a| a.length <=> b.length }
-
-    # if (cmp = a.length <=> b.length) != 0
-    #   cmp
-    # elsif (cmp = signature(a)[1].length <=> signature(b)[1].length) != 0
-    #   cmp
-    # else
-    #   @grouped_words[signature(b)[0]].size <=> @grouped_words[signature(a)[0]].size
-    # end
-
+    sorted_tokens = self.tokens.sort do |a, b|
+      if (cmp = b.length <=> a.length) != 0
+        cmp
+      elsif (cmp = a.signature[1].length <=> b.signature[1].length) != 0
+        cmp
+      else
+        self.class.optimized_dictionary[a.signature[0]].size <=> self.class.optimized_dictionary[b.signature[0]].size
+      end
+    end
+    
     sorted_tokens.each do |token|
-      puts ">>> Looking for solutions for token '#{token}' and known translations #{self.initial_translations.inspect}..." if options[:debug]
+      puts ">>> Looking for solutions for token '#{token}' and initial translations #{self.initial_translations.inspect}..." if options[:debug]
 
       candidates = self.find_candidates(token)
 
@@ -137,6 +137,12 @@ class Cryptogram
     token_re = token.tr(*self.mapping)
 
     if token_re.include?('.')
+      # token_optimized_re = (tmp = token_re.gsub('.', '')).empty? ?
+      #   token_re :
+      #   token_re.gsub('.', "[^#{tmp.signature[1]}]")
+      # 
+      # [token_re, self.class.optimized_dictionary[token.signature[0]].grep(/#{token_optimized_re}/i).map(&:downcase).uniq]
+
       [token_re, self.class.optimized_dictionary[token.signature[0]].grep(/#{token_re}/i).map(&:downcase).uniq]
     else
       [token_re, [token_re]]

@@ -1,4 +1,4 @@
-# Cryptogram sources: "Best of Ruby Quiz" book & One Across website (http://www.oneacross.com/@cryptograms)
+# Cryptogram sources: "Best of Ruby Quiz" book & One Across website (http://www.oneacross.com/cryptograms)
 
 require 'benchmark'
 require 'cryptogram'
@@ -153,6 +153,38 @@ end
   gppgar 
   pwm 
   mvmxz
+)
+
+# ? solutions found! (hard one)
+# Best phrase: "?"
+# Correct phrase: "?"
+@cryptograms[:unknown0] = Cryptogram.new %w(
+  oky	
+  bgdoiujy	
+  gr	
+  khtwj	
+  yfhwquoc	
+  iyxgaya	
+  gj	
+  okua							
+  okwo	
+  okyiy	
+  ua	
+  jg	
+  twj	
+  iywqqc	
+  dqyzyi	
+  nkg	
+  kwa	
+  jgo				
+  rghjb	
+  okwo	
+  ky	
+  ua	
+  aohxub		
+  puqmyio	
+  l
+  dkyaoyiagj
 )
 
 # ? solutions found! (hard one)
