@@ -11,8 +11,8 @@ end
 
 @cryptograms = {}
 
-# 279 solutions found in 0.5403711080551148 seconds.
-# Best phrase: "mark had a little lamb mother goose"
+# 279 solutions found in 0.6921849250793457 sec.
+# Best phrase: "(0170) mark had a little lamb mother goose (trl.a.m...e..bk...ohgdi.s.)"
 # Correct phrase: "Mary had a little lamb. Mother Goose"
 @cryptograms[:mary] = Cryptogram.new %w(
   gebo
@@ -24,8 +24,8 @@ end
   ussyk
 )
 
-# 19 solutions found in 0.07852108836174011 seconds
-# Best phrase: "genius is one per cent inspiration ninety nine per cent perspiration t.o.as a..a e.ison"
+# 19 solutions found in 0.0657658576965332 sec.
+# Best phrase: "(0014) genius is one per cent inspiration ninety nine per cent perspiration t.o.as a..a e.ison (yi.sre.u.a.o..c..tn....p.g)"
 # Correct phrase: "Genius is one percent inspiration, ninety-nine percent perspiration. Thomas Alva Edison"
 @cryptograms[:genius] = Cryptogram.new %w(
   zfsbhd
@@ -44,8 +44,8 @@ end
   fpbdls
 )
 
-# 1 solution found in 0.019197819232940675 seconds
-# Best phrase: "the difference between the almost right word and the right word is the difference between the lightning bug and the lightning mark twain"
+# 1 solution found in 0.01735997200012207 sec.
+# Best phrase: "(0001) the difference between the almost right word and the right word is the difference between the lightning bug and the lightning mark twain (gkoif.mcduh.tba.rew.n...sl)"
 # Correct phrase: "The difference between the right word and the almost right word is the difference between lightning and a lightning bug. Mark Twain"
 @cryptograms[:right_word] = Cryptogram.new %w(
   mkr
@@ -73,8 +73,8 @@ end
   msodu
 )
 
-# 7 solutions found in 0.03635883331298828 seconds
-# Best phrase: "psychotherapy is the theory that the patient will probably get well anyhow and is certainly a damn fool h l menc.en"
+# 7 solutions found in 0.16300392150878906 sec.
+# Best phrase: "(0002) psychotherapy is the theory that the patient will probably get well anyhow and is certainly a damn fool h l menc.en (.tmylr.nsbc..e.dohfg.pi.wa)"
 # Correct phrase: "Psychotherapy is the theory that the patient will probably get well anyhow and is certainly a damn fool. H L Mencken"
 @cryptograms[:psychotherapy] = Cryptogram.new %w(
   vidkrqbrnfzvd
@@ -100,8 +100,8 @@ end
   cnhkanh
 )
 
-# 1 solution found in 0.006327975034713745 seconds
-# Best phrase: ".ucharme s precept opportunity always knocks at the least opportune moment"
+# 1 solution found in 0.0062901973724365234 sec.
+# Best phrase: "(0001) .ucharme s precept opportunity always knocks at the least opportune moment (.nawroles.u.kmctpy.....h.i)"
 # Correct phrase: "Ducharme's Precept: Opportunity Always Knocks At The Least Opportune Moment."
 @cryptograms[:opportunity] = Cryptogram.new %w(
   vkoxcenh 
@@ -115,6 +115,44 @@ end
   ghcip 
   fqqfepkbh
   nfnhbp
+)
+
+# 6 solutions found in 0.03536510467529297 sec.
+# Best phrase: "(0006) in any world menu canada must be considered the vichyssoise of nations it s cold half french and difficult to stir stuart .eate (.suhcomief...lyt.avw.nbd.r)"
+# Correct phrase: "In any world menu, Canada must be considered the vichyssoise of nations, it's cold, half-French, and difficult to stir. Stuart Keate"
+@cryptograms[:canada] = Cryptogram.new %w(
+  hv	
+  rvo	
+  tfznx	
+  givc	
+  ervrxr	
+  gcbp	
+  wi	
+  efvbhxizix	
+  pdi						
+  shedobbfhbi	
+  fj	
+  vrphfvb
+  hp
+  b	
+  efnx	
+  drnj
+  jzived
+  rvx	
+  xhjjhecnp	
+  pf	
+  bphz
+  bpcrzp	
+  uirpi
+)
+
+# 495 solutions found in 1.5218639373779297 sec.
+# Best phrase: "(0176) attack the enemy (c.....a.....e..t.k...nhm.y)"
+# Correct phrase: "Attack the enemy!"
+@cryptograms[:attack] = Cryptogram.new %w(
+  gppgar 
+  pwm 
+  mvmxz
 )
 
 # ? solutions found! (hard one)
@@ -163,6 +201,8 @@ end
 # Preload the optimized dictionary.
 Cryptogram.optimized_dictionary
 
-puts avg_time(1) { @cryptograms[:right_word].solve! }
-
-@cryptograms[:right_word].print_phrases
+@cryptograms.each do |(k, v)|
+  puts "\n------------------- #{k} -------------------"
+  puts avg_time(1) { v.solve! :debug => false }
+  v.print_phrases
+end
