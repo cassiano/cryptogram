@@ -1,3 +1,4 @@
+require 'irb'
 require 'wirble'
 
 Wirble.init

@@ -11,7 +11,7 @@ end
 
 @cryptograms = {}
 
-# 279 solutions found in 0.6921849250793457 sec.
+# 279 solutions found in 0.7061140537261963 sec.
 # Best phrase: "(0170) mark had a little lamb mother goose (trl.a.m...e..bk...ohgdi.s.)"
 # Correct phrase: "Mary had a little lamb. Mother Goose"
 @cryptograms[:mary] = Cryptogram.new %w(
@@ -24,7 +24,7 @@ end
   ussyk
 )
 
-# 19 solutions found in 0.0657658576965332 sec.
+# 19 solutions found in 0.049610137939453125 sec.
 # Best phrase: "(0014) genius is one per cent inspiration ninety nine per cent perspiration t.o.as a..a e.ison (yi.sre.u.a.o..c..tn....p.g)"
 # Correct phrase: "Genius is one percent inspiration, ninety-nine percent perspiration. Thomas Alva Edison"
 @cryptograms[:genius] = Cryptogram.new %w(
@@ -44,7 +44,7 @@ end
   fpbdls
 )
 
-# 1 solution found in 0.01735997200012207 sec.
+# 1 solution found in 0.01794576644897461 sec.
 # Best phrase: "(0001) the difference between the almost right word and the right word is the difference between the lightning bug and the lightning mark twain (gkoif.mcduh.tba.rew.n...sl)"
 # Correct phrase: "The difference between the right word and the almost right word is the difference between lightning and a lightning bug. Mark Twain"
 @cryptograms[:right_word] = Cryptogram.new %w(
@@ -73,7 +73,7 @@ end
   msodu
 )
 
-# 7 solutions found in 0.16300392150878906 sec.
+# 7 solutions found in 0.029677152633666992 sec.
 # Best phrase: "(0002) psychotherapy is the theory that the patient will probably get well anyhow and is certainly a damn fool h l menc.en (.tmylr.nsbc..e.dohfg.pi.wa)"
 # Correct phrase: "Psychotherapy is the theory that the patient will probably get well anyhow and is certainly a damn fool. H L Mencken"
 @cryptograms[:psychotherapy] = Cryptogram.new %w(
@@ -100,7 +100,7 @@ end
   cnhkanh
 )
 
-# 1 solution found in 0.0062901973724365234 sec.
+# 1 solution found in 0.008978843688964844 sec.
 # Best phrase: "(0001) .ucharme s precept opportunity always knocks at the least opportune moment (.nawroles.u.kmctpy.....h.i)"
 # Correct phrase: "Ducharme's Precept: Opportunity Always Knocks At The Least Opportune Moment."
 @cryptograms[:opportunity] = Cryptogram.new %w(
@@ -117,7 +117,7 @@ end
   nfnhbp
 )
 
-# 6 solutions found in 0.03536510467529297 sec.
+# 6 solutions found in 0.03467893600463867 sec.
 # Best phrase: "(0006) in any world menu canada must be considered the vichyssoise of nations it s cold half french and difficult to stir stuart .eate (.suhcomief...lyt.avw.nbd.r)"
 # Correct phrase: "In any world menu, Canada must be considered the vichyssoise of nations, it's cold, half-French, and difficult to stir. Stuart Keate"
 @cryptograms[:canada] = Cryptogram.new %w(
@@ -146,7 +146,7 @@ end
   uirpi
 )
 
-# 495 solutions found in 1.5218639373779297 sec.
+# 495 solutions found in 1.317655086517334 sec.
 # Best phrase: "(0176) attack the enemy (c.....a.....e..t.k...nhm.y)"
 # Correct phrase: "Attack the enemy!"
 @cryptograms[:attack] = Cryptogram.new %w(
@@ -230,7 +230,7 @@ end
   fupyqd
 )
 
-# Preload the optimized dictionary.
+# Preload the dictionary and its optimized version.
 Cryptogram.optimized_dictionary
 
 @cryptograms.each do |(k, v)|
