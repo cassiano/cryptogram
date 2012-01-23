@@ -72,6 +72,7 @@ class Cryptogram
 
   attr_reader :tokens, :initial_translations, :solutions
 
+  # Constructor.
   def initialize(tokens, initial_translations = {})
     @tokens               = tokens
     @initial_translations = initial_translations
@@ -84,8 +85,7 @@ class Cryptogram
     }.merge(options)
     
     if self.tokens.empty? 
-      self.mapping    # If the current mapping is invalid this will raise an exception.
-      return self.initial_translations
+      return self.has_valid_mapping? ? self.initial_translations : nil
     end
 
     sorted_tokens = self.tokens.sort do |a, b|
@@ -101,26 +101,22 @@ class Cryptogram
     sorted_tokens.each do |token|
       puts ">>> Looking for solutions for token '#{token}' and initial translations #{self.initial_translations.inspect}..." if options[:debug]
 
-      candidates = self.find_candidates(token)
+      if (candidates = self.find_candidates(token))
+        puts "#{candidates[1].length} candidates found (#{candidates[1].join(', ')}) for #{token} and level #{options[:level]}" if options[:debug]
 
-      puts "#{candidates[1].length} candidates found (#{candidates[1].join(', ')}) for #{token} and level #{options[:level]}" if options[:debug]
-
-      @solutions = candidates[1].inject([]) { |memo, candidate|
-        memo.tap do
-          begin
+        @solutions = candidates[1].inject([]) { |memo, candidate|
+          memo.tap do
             cryptogram = Cryptogram.new(sorted_tokens[1..-1], self.initial_translations.merge(token => candidate))
-            
+          
             memo << cryptogram.solve!(:level => options[:level] + 1, :debug => options[:debug])
-          rescue StandardError => e
-            puts e.message if options[:debug]
           end
+        }.compact.flatten
+
+        if !@solutions.empty?
+          puts "Solutions found: #{@solutions.inspect}" if options[:debug]
+
+          return @solutions
         end
-      }.compact.flatten
-
-      if !self.solutions.empty?
-        puts "Solutions found: #{self.solutions.inspect}" if options[:debug]
-
-        return self.solutions
       end
     end
 
@@ -135,6 +131,8 @@ class Cryptogram
   protected
 
   def find_candidates(token)
+    return nil unless self.has_valid_mapping?
+    
     token_re = token.tr(*self.mapping)
 
     if token_re.include?('.')
@@ -151,7 +149,11 @@ class Cryptogram
   end
 
   def mapping
-    @mapping ||= self.class.generate_mapping(self.initial_translations)
+    @mapping ||= (self.class.generate_mapping(self.initial_translations) rescue nil)
+  end
+
+  def has_valid_mapping?
+    !!self.mapping
   end
   
   def phrases
