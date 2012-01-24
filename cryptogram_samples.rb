@@ -1,3 +1,7 @@
+#!/usr/bin/env ruby -s
+# Cryptogram solver
+$LOAD_PATH << File.expand_path("..", __FILE__)
+
 # Cryptogram sources: "Best of Ruby Quiz" book & One Across website (http://www.oneacross.com/cryptograms)
 
 require 'benchmark'
@@ -146,15 +150,6 @@ end
   uirpi
 )
 
-# 495 solutions found in 1.317655086517334 sec.
-# Best phrase: "(0176) attack the enemy (c.....a.....e..t.k...nhm.y)"
-# Correct phrase: "Attack the enemy!"
-@cryptograms[:attack] = Cryptogram.new %w(
-  gppgar 
-  pwm 
-  mvmxz
-)
-
 # ? solutions found! (hard one)
 # Best phrase: "?"
 # Correct phrase: "?"
@@ -230,11 +225,34 @@ end
   fupyqd
 )
 
-# Preload the dictionary and its optimized version.
-Cryptogram.optimized_dictionary
+if $h # -h option
+  abort <<USAGE
+Usage:
+  ./#{File.basename(__FILE__)} -d -c=<name>
+  
+  Options:
+  
+    -d = Debug mode
+    -c = Cryptogram name
+USAGE
+end
 
-@cryptograms.each do |(k, v)|
+# Preload the dictionary.
+Cryptogram.dictionary
+
+show_cryptogram = ->(k, v, debug, iterations) do
   puts "\n------------------- #{k} -------------------"
-  puts avg_time(1) { v.solve! :debug => false }
+  puts "#{avg_time(iterations) { v.solve! :debug => debug }} seconds for #{iterations} iterations"
   v.print_phrases
+end
+
+debug       = $d || false
+iterations  = $i && $i.to_i || 1
+
+if $c
+  show_cryptogram.call (k = $c.to_sym), @cryptograms[k], debug, iterations
+else
+  @cryptograms.each do |(k, v)|
+    show_cryptogram.call k, v, debug, iterations
+  end
 end

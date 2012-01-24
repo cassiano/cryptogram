@@ -21,16 +21,16 @@ end
 
 class Cryptogram
   def self.dictionary
-    @@dictionary ||= File.read('./12dicts-4.0/2of12inf.txt').split
-  end
-  
-  def self.optimized_dictionary
-    @@optimized_dictionary ||= self.dictionary.inject Hash.new([]) do |memo, token| 
-      # Get rid of non-alphabetic characters.
-      token.gsub!(/[^a-zA-Z]/, '')
+    @@dictionary ||= begin
+      words = File.read('./12dicts-4.0/2of12inf.txt').split
 
-      memo.tap do
-        memo[token.signature[0]] += [token]
+      words.inject Hash.new([]) do |memo, word| 
+        # Get rid of non-alphabetic characters.
+        word.gsub!(/[^a-zA-Z]/, '')
+
+        memo.tap do
+          memo[word.signature[0]] += [word]
+        end
       end
     end
   end
@@ -63,7 +63,7 @@ class Cryptogram
     color = 
         word.include?('.') ?
           :yellow :
-          self.optimized_dictionary[word.signature[0]].map(&:downcase).include?(word) ?
+          self.dictionary[word.signature[0]].map(&:downcase).include?(word) ?
             :green :
             :red
     
@@ -94,7 +94,7 @@ class Cryptogram
       elsif (cmp = a.signature[1].length <=> b.signature[1].length) != 0
         cmp
       else
-        self.class.optimized_dictionary[a.signature[0]].size <=> self.class.optimized_dictionary[b.signature[0]].size
+        self.class.dictionary[a.signature[0]].size <=> self.class.dictionary[b.signature[0]].size
       end
     end
     
@@ -142,9 +142,9 @@ class Cryptogram
       #   token_re :
       #   token_re.gsub('.', "[^#{tmp.signature[1]}]")
       # 
-      # [token_re, self.class.optimized_dictionary[token.signature[0]].grep(/#{token_optimized_re}/i).map(&:downcase).uniq]
+      # [token_re, self.class.dictionary[token.signature[0]].grep(/#{token_optimized_re}/i).map(&:downcase).uniq]
 
-      [token_re, self.class.optimized_dictionary[token.signature[0]].grep(/#{token_re}/i).map(&:downcase).uniq]
+      [token_re, self.class.dictionary[token.signature[0]].grep(/#{token_re}/i).map(&:downcase).uniq]
     else
       [token_re, [token_re]]
     end
