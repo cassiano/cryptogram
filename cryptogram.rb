@@ -1,5 +1,6 @@
 require 'irb'
 require 'wirble'
+require 'forwardable'
 
 Wirble.init
 Wirble.colorize
@@ -19,20 +20,99 @@ class String
   end
 end
 
-class Cryptogram
-  def self.dictionary
-    @@dictionary ||= begin
-      words = File.read('./12dicts-4.0/2of12inf.txt').split
+class Dictionary
+  extend Forwardable
+  
+  def initialize(filename)
+    @words = File.read(filename).split.inject Hash.new([]) do |memo, word| 
+      # Get rid of non-alphabetic characters.
+      word.gsub!(/[^a-zA-Z]/, '')
 
-      words.inject Hash.new([]) do |memo, word| 
-        # Get rid of non-alphabetic characters.
-        word.gsub!(/[^a-zA-Z]/, '')
-
-        memo.tap do
-          memo[word.signature[0]] += [word]
-        end
+      memo.tap do
+        memo[word.signature[0]] += [word]
       end
     end
+  end
+  
+  def_delegator :@words, :[], :lookup
+
+  def print_word(word)
+    color = 
+        word.include?('.') ?
+          :yellow :
+          self.lookup(word.signature[0]).map(&:downcase).include?(word) ?
+            :green :
+            :red
+    
+    Wirble::Colorize.colorize_string(word, color)
+  end
+end
+
+class Cryptogram
+  attr_reader :solutions
+
+  def initialize(dictionary, tokens, initial_translations = {})
+    @dictionary           = dictionary
+    @tokens               = tokens
+    @initial_translations = initial_translations
+  end
+
+  def solve!(options = {})
+    options = {
+      :level  => 0,
+      :debug  => false
+    }.merge(options)
+    
+    if @tokens.empty? 
+      self.mapping    # If the current mapping is invalid this will raise an exception.
+
+      puts ">>> Partial solution found: #{@initial_translations.inspect}"
+
+      return @initial_translations
+    end
+
+    sorted_tokens = @tokens.sort do |a, b|
+      if (cmp = b.length <=> a.length) != 0
+        cmp
+      elsif (cmp = a.signature[1].length <=> b.signature[1].length) != 0
+        cmp
+      else
+        @dictionary.lookup(a.signature[0]).size <=> @dictionary.lookup(b.signature[0]).size
+      end
+    end
+    
+    sorted_tokens.each do |token|
+      puts ">>> Looking for solutions for token '#{token}' and initial translations #{@initial_translations.inspect}..." if options[:debug]
+
+      candidates = self.find_candidates(token)
+
+      puts "#{candidates[1].length} candidates found (#{candidates[1].join(', ')}) for #{token} and level #{options[:level]}" if options[:debug]
+
+      @solutions = candidates[1].inject([]) { |memo, candidate|
+        memo.tap do
+          begin
+            cryptogram = Cryptogram.new(@dictionary, sorted_tokens[1..-1], @initial_translations.merge(token => candidate))
+            
+            memo << cryptogram.solve!(:level => options[:level] + 1, :debug => options[:debug])
+          rescue StandardError => e
+            puts e.message if options[:debug]
+          end
+        end
+      }.compact.flatten
+
+      if !@solutions.empty?
+        puts "Solutions found: #{@solutions.inspect}" if options[:debug]
+
+        return @solutions
+      end
+    end
+
+    nil
+  end
+
+  def print_phrases
+    self.phrases.each_with_index { |phrase, i| puts "(#{'%04d' % (i+1)}) #{phrase[1]} [#{phrase[0][1]}]" }
+    nil
   end
 
   def self.generate_mapping(translations)
@@ -59,79 +139,6 @@ class Cryptogram
     end
   end
 
-  def self.print_word(word)
-    color = 
-        word.include?('.') ?
-          :yellow :
-          self.dictionary[word.signature[0]].map(&:downcase).include?(word) ?
-            :green :
-            :red
-    
-    Wirble::Colorize.colorize_string(word, color)
-  end
-
-  attr_reader :tokens, :initial_translations, :solutions
-
-  def initialize(tokens, initial_translations = {})
-    @tokens               = tokens
-    @initial_translations = initial_translations
-  end
-
-  def solve!(options = {})
-    options = {
-      :level  => 0,
-      :debug  => false
-    }.merge(options)
-    
-    if self.tokens.empty? 
-      self.mapping    # If the current mapping is invalid this will raise an exception.
-      return self.initial_translations
-    end
-
-    sorted_tokens = self.tokens.sort do |a, b|
-      if (cmp = b.length <=> a.length) != 0
-        cmp
-      elsif (cmp = a.signature[1].length <=> b.signature[1].length) != 0
-        cmp
-      else
-        self.class.dictionary[a.signature[0]].size <=> self.class.dictionary[b.signature[0]].size
-      end
-    end
-    
-    sorted_tokens.each do |token|
-      puts ">>> Looking for solutions for token '#{token}' and initial translations #{self.initial_translations.inspect}..." if options[:debug]
-
-      candidates = self.find_candidates(token)
-
-      puts "#{candidates[1].length} candidates found (#{candidates[1].join(', ')}) for #{token} and level #{options[:level]}" if options[:debug]
-
-      @solutions = candidates[1].inject([]) { |memo, candidate|
-        memo.tap do
-          begin
-            cryptogram = Cryptogram.new(sorted_tokens[1..-1], self.initial_translations.merge(token => candidate))
-            
-            memo << cryptogram.solve!(:level => options[:level] + 1, :debug => options[:debug])
-          rescue StandardError => e
-            puts e.message if options[:debug]
-          end
-        end
-      }.compact.flatten
-
-      if !self.solutions.empty?
-        puts "Solutions found: #{self.solutions.inspect}" if options[:debug]
-
-        return self.solutions
-      end
-    end
-
-    nil
-  end
-
-  def print_phrases
-    self.phrases.each_with_index { |phrase, i| puts "(#{'%04d' % (i+1)}) #{phrase[1]} [#{phrase[0][1]}]" }
-    nil
-  end
-
   protected
 
   def find_candidates(token)
@@ -142,25 +149,25 @@ class Cryptogram
       #   token_re :
       #   token_re.gsub('.', "[^#{tmp.signature[1]}]")
       # 
-      # [token_re, self.class.dictionary[token.signature[0]].grep(/#{token_optimized_re}/i).map(&:downcase).uniq]
+      # [token_re, @dictionary.lookup(token.signature[0]).grep(/#{token_optimized_re}/i).map(&:downcase).uniq]
 
-      [token_re, self.class.dictionary[token.signature[0]].grep(/#{token_re}/i).map(&:downcase).uniq]
+      [token_re, @dictionary.lookup(token.signature[0]).grep(/#{token_re}/i).map(&:downcase).uniq]
     else
       [token_re, [token_re]]
     end
   end
 
   def mapping
-    @mapping ||= self.class.generate_mapping(self.initial_translations)
+    @mapping ||= self.class.generate_mapping(@initial_translations)
   end
   
   def phrases
-    raise "Please call :solve! to find all possible solutions!" unless self.solutions
+    raise "Please call :solve! to find all possible solutions!" unless @solutions
     
-    @phrases ||= self.solutions.map { |translations| 
+    @phrases ||= @solutions.map { |translations| 
       [
         map = self.class.generate_mapping(translations), 
-        self.tokens.map { |w| self.class.print_word(w.tr(*map)) }.join(' ')
+        @tokens.map { |word| @dictionary.print_word(word.tr(*map)) }.join(' ')
       ] 
     }.sort { |a, b| a[1] <=> b[1] }
   end
